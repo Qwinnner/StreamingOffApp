@@ -1,0 +1,200 @@
+﻿<Window x:Class="StreamingOffApp.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:sys="clr-namespace:System;assembly=mscorlib"
+        xmlns:models="clr-namespace:StreamingOffApp.Models"
+        Title="Streaming Offers Manager" Height="600" Width="800"
+        WindowStartupLocation="CenterScreen">
+    <Window.Resources>
+        <Style x:Key="ButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="#FF6200EE"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="Padding" Value="20,10"/>
+            <Setter Property="Margin" Value="5"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" CornerRadius="5">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#FF7F39FB"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+        <Style x:Key="TextBoxStyle" TargetType="TextBox">
+            <Setter Property="Padding" Value="5"/>
+            <Setter Property="Margin" Value="5"/>
+            <Setter Property="BorderBrush" Value="#FF6200EE"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Style.Triggers>
+                <Trigger Property="Validation.HasError" Value="True">
+                    <Setter Property="BorderBrush" Value="Red"/>
+                    
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+        <Style x:Key="ComboBoxStyle" TargetType="ComboBox">
+            <Setter Property="Padding" Value="5"/>
+            <Setter Property="Margin" Value="5"/>
+            <Setter Property="BorderBrush" Value="#FF6200EE"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Style.Triggers>
+                <Trigger Property="Validation.HasError" Value="True">
+                    <Setter Property="BorderBrush" Value="Red"/>
+                    
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+        <Style x:Key="GridViewHeaderStyle" TargetType="GridViewColumnHeader">
+            <Setter Property="Padding" Value="8,4"/>
+            <Setter Property="Background" Value="#F5F5F5"/>
+            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <EventSetter Event="Click" Handler="SortColumn_Click"/>
+        </Style>
+    </Window.Resources>
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Right">
+            <Button Content="Add" Command="{Binding AddCommand}" Style="{StaticResource ButtonStyle}"/>
+            <Button Content="Update" Command="{Binding UpdateCommand}" Style="{StaticResource ButtonStyle}"/>
+            <Button Content="Delete" Command="{Binding DeleteCommand}" Style="{StaticResource ButtonStyle}"/>
+            <Button Content="Refresh" Command="{Binding RefreshCommand}" Style="{StaticResource ButtonStyle}"/>
+        </StackPanel>
+        <TextBlock Grid.Row="1" Text="{Binding Offers.Count, StringFormat='Liczba ofert: {0}'}" Margin="0,5" FontSize="14" FontWeight="Bold"/>
+        <ListView x:Name="OffersListView" Grid.Row="2" ItemsSource="{Binding SortedOffersView}" SelectedItem="{Binding SelectedOffer}" Margin="0,10" SelectionChanged="OffersListView_SelectionChanged">
+            <ListView.View>
+                <GridView ColumnHeaderContainerStyle="{StaticResource GridViewHeaderStyle}">
+                    <GridViewColumn x:Name="PlatformColumn">
+                        <GridViewColumn.HeaderTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="Platform" Tag="PlatformName" Padding="8,4"/>
+                                    <TextBlock Text="{Binding DataContext.PlatformSortIndicator, 
+                                        RelativeSource={RelativeSource AncestorType=Window}}" Margin="4,0"/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </GridViewColumn.HeaderTemplate>
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding PlatformName}" Width="190"/>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                    <GridViewColumn x:Name="PriceColumn">
+                        <GridViewColumn.HeaderTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="Price (PLN)" Tag="Price" Padding="8,4"/>
+                                    <TextBlock Text="{Binding DataContext.PriceSortIndicator, RelativeSource={RelativeSource AncestorType=Window}}" Margin="4,0"/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </GridViewColumn.HeaderTemplate>
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Price, StringFormat=N2}" Width="90"/>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                    <GridViewColumn x:Name="PlanDaysColumn">
+                        <GridViewColumn.HeaderTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="Plan (days)" Tag="PlanDays" Padding="8,4"/>
+                                    <TextBlock Text="{Binding DataContext.PlanDaysSortIndicator, RelativeSource={RelativeSource AncestorType=Window}}" Margin="4,0"/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </GridViewColumn.HeaderTemplate>
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding PlanDays}" Width="90"/>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                    <GridViewColumn x:Name="StatusColumn">
+                        <GridViewColumn.HeaderTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="Status" Tag="Status" Padding="8,4"/>
+                                    <TextBlock Text="{Binding DataContext.StatusSortIndicator, RelativeSource={RelativeSource AncestorType=Window}}" Margin="4,0"/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </GridViewColumn.HeaderTemplate>
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Status}" Width="90"/>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                    <GridViewColumn x:Name="DescriptionColumn">
+                        <GridViewColumn.HeaderTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="Description" Tag="Description" Padding="8,4"/>
+                                    <TextBlock Text="{Binding DataContext.DescriptionSortIndicator, RelativeSource={RelativeSource AncestorType=Window}}" Margin="4,0"/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </GridViewColumn.HeaderTemplate>
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Description}" Width="240"/>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                </GridView>
+            </ListView.View>
+        </ListView>
+        <Grid Grid.Row="3" Margin="0,10">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <StackPanel Grid.Column="0">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="Platform:" Width="100"/>
+                    <TextBox Text="{Binding SelectedOffer.PlatformName, UpdateSourceTrigger=PropertyChanged, ValidatesOnNotifyDataErrors=True}" Width="200" Style="{StaticResource TextBoxStyle}"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="Price (PLN):" Width="100"/>
+                    <TextBox Text="{Binding SelectedOffer.Price, UpdateSourceTrigger=PropertyChanged, ValidatesOnNotifyDataErrors=True, StringFormat=N2}" Width="200" Style="{StaticResource TextBoxStyle}"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="Plan (days):" Width="100"/>
+                    <ComboBox SelectedItem="{Binding SelectedOffer.PlanDays, UpdateSourceTrigger=PropertyChanged, ValidatesOnNotifyDataErrors=True}" Width="200" Style="{StaticResource ComboBoxStyle}">
+                        <sys:Int32>1</sys:Int32>
+                        <sys:Int32>7</sys:Int32>
+                        <sys:Int32>14</sys:Int32>
+                        <sys:Int32>30</sys:Int32>
+                        <sys:Int32>180</sys:Int32>
+                        <sys:Int32>365</sys:Int32>
+                    </ComboBox>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="Status:" Width="100"/>
+                    <ComboBox SelectedItem="{Binding SelectedOffer.Status, UpdateSourceTrigger=PropertyChanged, ValidatesOnNotifyDataErrors=True}" Width="200" Style="{StaticResource ComboBoxStyle}">
+                        <models:OfferStatus>Active</models:OfferStatus>
+                        <models:OfferStatus>Inactive</models:OfferStatus>
+                        <models:OfferStatus>Suspended</models:OfferStatus>
+                        <models:OfferStatus>Expired</models:OfferStatus>
+                    </ComboBox>
+                </StackPanel>
+            </StackPanel>
+            <StackPanel Grid.Column="1" Margin="10,0,0,0">
+                <TextBlock Text="Description:" Margin="0,5"/>
+                <TextBox Text="{Binding SelectedOffer.Description, UpdateSourceTrigger=PropertyChanged, ValidatesOnNotifyDataErrors=True}" Width="400" Height="100" AcceptsReturn="True" VerticalScrollBarVisibility="Auto" Style="{StaticResource TextBoxStyle}"/>
+            </StackPanel>
+        </Grid>
+    </Grid>
+</Window>
