@@ -29,7 +29,7 @@ namespace StreamingOffApp
             base.OnStartup(e);
             try
             {
-                SeedDatabase(_serviceProvider); // Poprawka: przekazujemy _serviceProvider zamiast context
+                SeedDatabase(_serviceProvider); 
 
                 var mainWindow = new MainWindow
                 {
@@ -49,12 +49,12 @@ namespace StreamingOffApp
             using (var scope = provider.CreateScope())
             {
                 var context = scope.ServiceProvider.GetService<StreamingContext>();
-                context.Database.EnsureCreated(); // Tworzy bazę, jeśli nie istnieje
+                context.Database.EnsureCreated(); 
 
-                // Sprawdź, czy tabela StreamingOffers jest pusta
+               
                 if (!context.StreamingOffers.Any())
                 {
-                    // Dodaj przykładowe oferty tylko, jeśli tabela jest pusta
+                    
                     var sampleOffers = new List<StreamingOffer>
                     {
                         new StreamingOffer { PlatformName = "Netflix", Price = 29.99m, PlanDays = 30, Status = OfferStatus.Active, Description = "Standard plan" },
@@ -72,7 +72,7 @@ namespace StreamingOffApp
                     context.StreamingOffers.AddRange(sampleOffers);
                     try
                     {
-                        context.SaveChanges(); // Synchroniczne dla prostoty w inicjalizacji
+                        context.SaveChanges(); 
                     }
                     catch (Exception ex)
                     {
